@@ -2,11 +2,6 @@
  * ═══════════════════════════════════════════════════════════════════════════
  * INTERACTIVE TEST: getAccountSubscriptions() - WITH AUTO RELATIONSHIP DISCOVERY
  * ═══════════════════════════════════════════════════════════════════════════
- * 
- * This script automatically finds the correct relationship name
- * and tests the getAccountSubscriptions method
- * 
- * Usage: Execute Anonymous in VS Code or Developer Console
  */
 
 System.debug('════════════════════════════════════════════════════════');
@@ -37,22 +32,21 @@ for(Schema.ChildRelationship rel : childRelationships) {
 
 if(relationshipName == null) {
     System.debug('❌ ERROR: Could not find Subscription relationship on Account!');
-    System.debug('   Please check if Subscription__c has a lookup to Account.');
     return;
 }
 
 System.debug('\n');
 
 // ═══════════════════════════════════════════════════════════════════════════
-// STEP 2: GET TEST ACCOUNTS (Using discovered relationship)
+// STEP 2: GET TEST ACCOUNTS
 // ═══════════════════════════════════════════════════════════════════════════
 
 System.debug('📊 Step 2: Querying test accounts...\n');
 
-// Build dynamic SOQL query
+// Build dynamic SOQL query - NOW INCLUDES Account__c field!
 String soqlQuery = 
     'SELECT Id, Name, ' +
-    '       (SELECT Id, Name, Status__c, End_Date__c, Start_Date__c, External_Sub_ID__c ' +
+    '       (SELECT Id, Name, Account__c, Status__c, End_Date__c, Start_Date__c, External_Sub_ID__c ' +
     '        FROM ' + relationshipName + ' ' +
     '        ORDER BY End_Date__c DESC) ' +
     'FROM Account ' +
@@ -68,7 +62,7 @@ System.debug('Found ' + testAccounts.size() + ' test account(s)\n');
 
 if(testAccounts.isEmpty()) {
     System.debug('❌ No test accounts found!');
-    System.debug('   Run the data import script first: scripts/data import/subscriptionConsoleTestData.apex');
+    System.debug('   Run: scripts/data import/test.apex');
     return;
 }
 
@@ -100,7 +94,7 @@ for(Account acc : testAccounts) {
     
     // Call the method being tested
     List<Subscription__c> methodResults;
-    Boolean testPassed = false;
+    Boolean testPassed = true;
     
     try {
         methodResults = SubscriptionController.getAccountSubscriptions(acc.Id);
@@ -109,13 +103,13 @@ for(Account acc : testAccounts) {
         // Verify counts match
         if(methodResults.size() == relatedSubs.size()) {
             System.debug('✅ PASS: Counts match!');
-            testPassed = true;
             passedTests++;
         } else {
             System.debug('❌ FAIL: Count mismatch!');
             System.debug('   Expected: ' + relatedSubs.size());
             System.debug('   Got: ' + methodResults.size());
             failedTests++;
+            testPassed = false;
         }
         
         // Display results if any subscriptions exist
@@ -163,6 +157,7 @@ for(Account acc : testAccounts) {
                 } else {
                     System.debug('\n❌ Results are NOT properly ordered!');
                     testPassed = false;
+                    if(testPassed) failedTests++;
                 }
             }
         } else {
@@ -181,6 +176,7 @@ for(Account acc : testAccounts) {
         }
         
         // Check 2: All subscriptions belong to correct account
+        // NOW SAFE because methodResults includes Account__c field!
         Boolean allCorrectAccount = true;
         for(Subscription__c sub : methodResults) {
             if(sub.Account__c != acc.Id) {

@@ -1,0 +1,79 @@
+<template>
+    <lightning-card title="Subscription Console" icon-name="custom:custom63">
+        
+        <!-- Account Selector -->
+        <div class="slds-p-around_medium">
+            <lightning-record-picker
+                label="Select Account"
+                placeholder="Search Accounts..."
+                object-api-name="Account"
+                onchange={handleAccountChange}
+                value={accountId}>
+            </lightning-record-picker>
+        </div>
+
+        <!-- Loading Spinner -->
+        <template if:true={isLoading}>
+            <div class="slds-is-relative slds-p-around_large">
+                <lightning-spinner 
+                    alternative-text="Loading subscriptions..." 
+                    size="medium">
+                </lightning-spinner>
+            </div>
+        </template>
+
+        <!-- Subscriptions Table -->
+        <template if:false={isLoading}>
+            <template if:true={hasSubscriptions}>
+                <div class="slds-p-horizontal_medium">
+                    <lightning-datatable
+                        key-field="Id"
+                        data={subscriptions}
+                        columns={columns}
+                        hide-checkbox-column
+                        onrowaction={handleRowAction}>
+                    </lightning-datatable>
+                </div>
+
+                <!-- Summary -->
+                <div class="slds-p-around_medium summary-box">
+                    <div class="slds-grid slds-gutters">
+                        <div class="slds-col">
+                            <div class="summary-item">
+                                <span class="summary-label">Total:</span>
+                                <span class="summary-value">{totalCount}</span>
+                            </div>
+                        </div>
+                        <div class="slds-col">
+                            <div class="summary-item">
+                                <span class="summary-label">Active:</span>
+                                <span class="summary-value summary-active">{activeCount}</span>
+                            </div>
+                        </div>
+                        <div class="slds-col">
+                            <div class="summary-item">
+                                <span class="summary-label">Expired:</span>
+                                <span class="summary-value summary-expired">{expiredCount}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <!-- No Subscriptions Message -->
+            <template if:false={hasSubscriptions}>
+                <div class="slds-p-around_large slds-text-align_center">
+                    <lightning-icon 
+                        icon-name="utility:info" 
+                        size="large" 
+                        alternative-text="Info">
+                    </lightning-icon>
+                    <p class="slds-text-heading_small slds-m-top_medium">
+                        {noDataMessage}
+                    </p>
+                </div>
+            </template>
+        </template>
+
+    </lightning-card>
+</template>

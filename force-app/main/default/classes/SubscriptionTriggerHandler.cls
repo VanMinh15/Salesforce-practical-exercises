@@ -40,7 +40,7 @@ public class SubscriptionTriggerHandler {
 
         // Query all subscriptions
         List<Subscription__c> subsToProcess = [
-            SELECT Id, Account__c, Subscription_Name__c, Status__c, End_Date__c, CreatedDate
+            SELECT Id, Account__c, Name, Status__c, End_Date__c, CreatedDate
             FROM Subscription__c
             WHERE Account__c IN :accountIDs
         ];
@@ -81,7 +81,7 @@ public class SubscriptionTriggerHandler {
                 
                 // Check condition: Active + same sub
                 if(oldSub.Status__c == 'Active' && 
-                   oldSub.Subscription_Name__c == newSub.Subscription_Name__c) {
+                   oldSub.Name == newSub.Name) {
                     
                     oldSub.Status__c = 'Replaced';
                     subsToUpdate.add(oldSub);
