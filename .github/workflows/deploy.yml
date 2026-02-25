@@ -1,0 +1,24 @@
+name: Deploy to Salesforce
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Salesforce CLI
+        run: npm install -g @salesforce/cli
+
+      - name: Authenticate to Salesforce
+        run: |
+          echo "${{ secrets.SFDX_AUTH_URL }}" > ./authfile.txt
+          sf org login sfdx-url --sfdx-url-file ./authfile.txt --alias targetorg
+
+      - name: Deploy to Org
+        run: |
+          sf project deploy start --target-org targetorg --source-dir force-app

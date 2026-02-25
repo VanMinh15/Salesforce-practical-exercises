@@ -57,8 +57,6 @@ public with sharing class SubscriptionController {
             
         } catch (DmlException e) {
             throw new AuraHandledException('Error extending subscription: ' + e.getDmlMessage(0));
-        } catch (Exception e) {
-            throw new AuraHandledException('Error extending subscription: ' + e.getMessage());
         }
     }
 }
