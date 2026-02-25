@@ -3,8 +3,6 @@ name: Deploy to Salesforce
 on:
   push:
     branches:
-      - dev
-      - uat
       - main
 
 jobs:
@@ -16,16 +14,15 @@ jobs:
       - name: Install Salesforce CLI
         run: npm install -g @salesforce/cli
 
-      - name: Set Auth URL based on branch
+      - name: Authenticate to Salesforce
         run: |
-          if [ "${{ github.ref_name }}" == "dev" ]; then
+          if [ "${{ github.ref_name }}" == "main" ]; then
             echo "${{ secrets.SFDX_AUTH_URL }}" > ./authfile.txt
-          elif [ "${{ github.ref_name }}" == "uat" ]; then
-            echo "${{ secrets.SFDX_AUTH_URL_UAT }}" > ./authfile.txt
           elif [ "${{ github.ref_name }}" == "main" ]; then
             echo "${{ secrets.SFDX_AUTH_URL_PROD }}" > ./authfile.txt
           fi
           sf org login sfdx-url --sfdx-url-file ./authfile.txt --alias targetorg
 
-      - name: Deploy
-        run: sf project deploy start --target-org targetorg --source-dir force-app
+      - name: Deploy to Org
+        run: |
+          sf project deploy start --target-org targetorg --source-dir force-app
