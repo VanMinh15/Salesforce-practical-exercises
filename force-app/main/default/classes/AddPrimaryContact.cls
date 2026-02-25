@@ -1,9 +1,9 @@
-public class AddPrimaryContactCopy implements Queueable {
+public class AddPrimaryContact implements Queueable {
     
     private Contact contactTemplate;
     private String stateAbbreviation;
     
-    public AddPrimaryContactCopy(Contact contact, String state) {
+    public AddPrimaryContact(Contact contact, String state) {
         this.contactTemplate = contact;
         this.stateAbbreviation = state;
     }
